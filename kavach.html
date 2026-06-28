@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KAVACH — AI-Powered Confined Space Safety</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg-0: #04070F;
+  --bg-1: #07111E;
+  --bg-2: #0A1628;
+  --bg-3: #0D1F3C;
+  --red: #FF3B30;
+  --green: #2ECC71;
+  --blue: #0066FF;
+  --cyan: #00D9FF;
+  --amber: #FFC300;
+  --white: #F0F4FF;
+  --gray: #7A8BAA;
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --glow-cyan: 0 0 40px rgba(0,217,255,0.15);
+  --glow-blue: 0 0 60px rgba(0,102,255,0.2);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg-0);
+  color:var(--white);
+  font-family:'Inter',sans-serif;
+  overflow-x:hidden;
+  cursor:default;
+}
+
+/* CANVAS BACKGROUND */
+#hero-canvas{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:1000;
+  padding:20px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(4,7,15,0.7);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--glass-border);
+}
+.nav-logo{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:22px;font-weight:700;
+  letter-spacing:0.12em;
+  background:linear-gradient(90deg,var(--cyan),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.nav-links{display:flex;gap:36px;list-style:none}
+.nav-links a{
+  color:var(--gray);font-size:13px;font-weight:500;
+  text-decoration:none;letter-spacing:0.05em;
+  transition:color 0.3s;
+}
+.nav-links a:hover{color:var(--cyan)}
+.nav-cta{
+  padding:10px 24px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  color:#fff;border:none;border-radius:8px;
+  font-size:13px;font-weight:600;letter-spacing:0.04em;
+  cursor:pointer;transition:all 0.3s;
+  font-family:'Inter',sans-serif;
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(0,102,255,0.4)}
+
+/* HERO */
+#hero{
+  position:relative;
+  height:100vh;min-height:700px;
+  display:flex;align-items:center;
+  padding:0 48px;
+  overflow:hidden;
+  z-index:1;
+}
+.hero-content{
+  max-width:680px;
+  position:relative;z-index:2;
+  animation:heroIn 1.2s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes heroIn{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:400;
+  color:var(--cyan);letter-spacing:0.15em;
+  text-transform:uppercase;
+  padding:6px 14px;
+  border:1px solid rgba(0,217,255,0.3);
+  border-radius:100px;
+  margin-bottom:28px;
+  background:rgba(0,217,255,0.06);
+}
+.eyebrow-dot{
+  width:6px;height:6px;
+  background:var(--cyan);border-radius:50%;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.4;transform:scale(0.7)}
+}
+.hero-h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(36px,5vw,68px);
+  font-weight:700;line-height:1.05;
+  letter-spacing:-0.02em;
+  margin-bottom:24px;
+}
+.hero-h1 .accent{
+  background:linear-gradient(135deg,var(--cyan) 0%,var(--blue) 60%,#8B5CF6 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  font-size:16px;line-height:1.7;
+  color:var(--gray);max-width:540px;
+  margin-bottom:40px;
+}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap}
+.btn-primary{
+  padding:14px 32px;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  color:#fff;border:none;border-radius:10px;
+  font-size:14px;font-weight:600;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.3s;
+  letter-spacing:0.02em;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,102,255,0.4)}
+.btn-secondary{
+  padding:14px 32px;
+  background:transparent;
+  color:var(--cyan);
+  border:1px solid rgba(0,217,255,0.4);
+  border-radius:10px;font-size:14px;font-weight:500;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.3s;
+}
+.btn-secondary:hover{background:rgba(0,217,255,0.08);transform:translateY(-2px)}
+
+/* DEVICE ANIMATION */
+.hero-device{
+  position:absolute;right:80px;top:50%;
+  transform:translateY(-50%);
+  width:340px;height:440px;
+  animation:heroDeviceIn 1.4s cubic-bezier(0.16,1,0.3,1) 0.3s both;
+}
+@keyframes heroDeviceIn{
+  from{opacity:0;transform:translateY(calc(-50% + 40px))}
+  to{opacity:1;transform:translateY(-50%)}
+}
+.manhole-ring{
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  width:200px;height:40px;
+  border-radius:50%;
+  border:3px solid rgba(0,217,255,0.4);
+  box-shadow:0 0 30px rgba(0,217,255,0.3),inset 0 0 20px rgba(0,102,255,0.1);
+  animation:manholeGlow 3s ease-in-out infinite;
+}
+@keyframes manholeGlow{
+  0%,100%{box-shadow:0 0 30px rgba(0,217,255,0.3),inset 0 0 20px rgba(0,102,255,0.1)}
+  50%{box-shadow:0 0 60px rgba(0,217,255,0.6),inset 0 0 40px rgba(0,102,255,0.2)}
+}
+.device-body{
+  position:absolute;left:50%;top:40px;
+  transform:translateX(-50%);
+  width:100px;height:160px;
+  background:linear-gradient(160deg,#1a2d4a,#0d1f3c);
+  border:1px solid rgba(0,217,255,0.3);
+  border-radius:16px;
+  box-shadow:0 0 40px rgba(0,102,255,0.3);
+  animation:deviceFloat 4s ease-in-out infinite;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+@keyframes deviceFloat{
+  0%,100%{transform:translateX(-50%) translateY(0)}
+  50%{transform:translateX(-50%) translateY(-12px)}
+}
+.device-screen{
+  width:80px;height:50px;
+  background:var(--bg-0);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:4px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;
+  border:1px solid rgba(0,217,255,0.2);
+  overflow:hidden;
+  position:relative;
+}
+.device-status{
+  font-size:12px;font-weight:700;
+  font-family:'Space Grotesk',sans-serif;
+  letter-spacing:0.1em;
+  transition:all 0.8s;
+}
+.status-safe{color:var(--green);text-shadow:0 0 10px var(--green)}
+.status-unsafe{color:var(--red);text-shadow:0 0 10px var(--red)}
+.device-led{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:ledBlink 1.5s ease-in-out infinite;
+}
+@keyframes ledBlink{
+  0%,100%{opacity:1}50%{opacity:0.3}
+}
+.sensor-waves{
+  position:absolute;bottom:50px;left:50%;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+.wave{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(0,217,255,0.3);
+  transform:translate(-50%,-50%);
+  animation:waveExpand 3s ease-out infinite;
+}
+.wave:nth-child(2){animation-delay:1s}
+.wave:nth-child(3){animation-delay:2s}
+@keyframes waveExpand{
+  0%{width:60px;height:20px;opacity:0.8}
+  100%{width:300px;height:100px;opacity:0}
+}
+.cable{
+  position:absolute;left:50%;top:0;bottom:220px;
+  width:3px;background:linear-gradient(to bottom,rgba(0,217,255,0.1),rgba(0,217,255,0.6));
+  transform:translateX(-50%);
+  animation:cableGlow 2s ease-in-out infinite;
+}
+@keyframes cableGlow{
+  0%,100%{opacity:0.6}50%{opacity:1}
+}
+.data-packets{
+  position:absolute;left:50%;top:0;
+  transform:translateX(-50%);
+  width:3px;
+  overflow:visible;
+  pointer-events:none;
+}
+.packet{
+  position:absolute;
+  width:6px;height:6px;
+  background:var(--cyan);
+  border-radius:50%;
+  box-shadow:0 0 8px var(--cyan);
+  left:-1.5px;
+  animation:packetTravel 2.5s ease-in-out infinite;
+}
+.packet:nth-child(2){animation-delay:0.8s}
+.packet:nth-child(3){animation-delay:1.6s}
+@keyframes packetTravel{
+  0%{top:0;opacity:1}
+  100%{top:200px;opacity:0}
+}
+
+/* SECTION SHARED */
+section{
+  position:relative;z-index:2;
+  padding:100px 48px;
+}
+.section-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;font-weight:400;
+  color:var(--cyan);letter-spacing:0.15em;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:block;
+}
+.section-h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(28px,4vw,52px);
+  font-weight:700;line-height:1.1;
+  letter-spacing:-0.02em;
+  margin-bottom:20px;
+}
+.section-sub{
+  font-size:16px;line-height:1.7;
+  color:var(--gray);max-width:600px;
+  margin-bottom:64px;
+}
+
+/* SECTION DIVIDER */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,217,255,0.2),transparent);
+  margin:0 48px;
+}
+
+/* STATS SECTION */
+#problem{background:linear-gradient(to bottom,var(--bg-0),var(--bg-1))}
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  margin-bottom:80px;
+}
+.stat-card{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  padding:48px 36px;
+  position:relative;overflow:hidden;
+  transition:all 0.4s;
+}
+.stat-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  transform:scaleX(0);
+  transition:transform 0.6s;
+}
+.stat-card:hover::before{transform:scaleX(1)}
+.stat-card:hover{background:rgba(0,217,255,0.04)}
+.stat-num{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(40px,5vw,72px);
+  font-weight:700;
+  background:linear-gradient(135deg,var(--red),var(--amber));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:12px;
+  display:block;
+}
+.stat-label{
+  font-size:14px;color:var(--gray);line-height:1.5;
+  font-weight:400;
+}
+
+/* TIMELINE */
+.timeline{
+  display:flex;flex-direction:column;gap:0;
+  max-width:760px;margin:0 auto;
+}
+.timeline-item{
+  display:flex;gap:32px;align-items:flex-start;
+  padding:28px 0;
+  border-left:1px solid rgba(255,255,255,0.08);
+  margin-left:20px;
+  padding-left:40px;
+  position:relative;
+  opacity:0;transform:translateX(-20px);
+  transition:all 0.5s;
+}
+.timeline-item.visible{opacity:1;transform:translateX(0)}
+.timeline-dot{
+  position:absolute;left:-8px;top:36px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--bg-0);
+  border:2px solid var(--gray);
+  flex-shrink:0;
+}
+.timeline-item.danger .timeline-dot{border-color:var(--red);box-shadow:0 0 12px var(--red)}
+.timeline-step-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--gray);
+  margin-top:4px;white-space:nowrap;
+}
+.timeline-content h4{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:18px;font-weight:600;
+  margin-bottom:6px;
+}
+.timeline-content p{
+  font-size:14px;color:var(--gray);line-height:1.6;
+}
+.timeline-item.danger .timeline-content h4{color:var(--red)}
+
+/* HOW IT WORKS */
+#how{background:var(--bg-1)}
+.workflow{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:1px;
+  background:var(--glass-border);
+  border:1px solid var(--glass-border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.workflow-step{
+  background:var(--bg-1);
+  padding:36px 28px;
+  position:relative;
+  transition:all 0.4s;
+  opacity:0;transform:translateY(20px);
+}
+.workflow-step.visible{opacity:1;transform:translateY(0)}
+.workflow-step:hover{background:rgba(0,217,255,0.04)}
+.step-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--cyan);
+  letter-spacing:0.15em;
+  margin-bottom:16px;
+  display:block;
+}
+.step-icon{
+  width:44px;height:44px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  margin-bottom:16px;
+}
+.step-icon.green{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.2)}
+.step-icon.cyan{background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.2)}
+.step-icon.blue{background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2)}
+.step-icon.red{background:rgba(255,59,48,0.1);border:1px solid rgba(255,59,48,0.2)}
+.step-icon.amber{background:rgba(255,195,0,0.1);border:1px solid rgba(255,195,0,0.2)}
+.step-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:15px;font-weight:600;
+  margin-bottom:8px;
+}
+.step-desc{font-size:13px;color:var(--gray);line-height:1.6}
+
+/* ARCHITECTURE */
+#architecture{background:linear-gradient(to bottom,var(--bg-1),var(--bg-2))}
+.arch-diagram{
+  position:relative;
+  width:100%;max-width:900px;
+  margin:0 auto;
+  height:600px;
+}
+.arch-center{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:160px;height:160px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,102,255,0.2),rgba(0,217,255,0.05));
+  border:2px solid rgba(0,217,255,0.5);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:4px;
+  text-align:center;
+  box-shadow:0 0 60px rgba(0,217,255,0.2),0 0 120px rgba(0,102,255,0.1);
+  animation:centerPulse 4s ease-in-out infinite;
+  z-index:10;
+  cursor:pointer;
+}
+@keyframes centerPulse{
+  0%,100%{box-shadow:0 0 60px rgba(0,217,255,0.2),0 0 120px rgba(0,102,255,0.1)}
+  50%{box-shadow:0 0 100px rgba(0,217,255,0.4),0 0 200px rgba(0,102,255,0.2)}
+}
+.arch-center-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:13px;font-weight:700;
+  color:var(--cyan);
+}
+.arch-center-sub{
+  font-size:10px;color:var(--gray);
+  font-family:'JetBrains Mono',monospace;
+}
+.arch-node{
+  position:absolute;
+  width:130px;height:130px;
+  border-radius:16px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:6px;
+  text-align:center;
+  padding:16px;
+  cursor:pointer;
+  transition:all 0.4s;
+  backdrop-filter:blur(10px);
+}
+.arch-node:hover{
+  transform:scale(1.08);
+  border-color:rgba(0,217,255,0.5);
+  box-shadow:0 0 40px rgba(0,217,255,0.2);
+}
+.arch-node.n1{top:20px;left:50%;transform:translateX(-50%)}
+.arch-node.n1:hover{transform:translateX(-50%) scale(1.08)}
+.arch-node.n2{top:50%;right:20px;transform:translateY(-50%)}
+.arch-node.n2:hover{transform:translateY(-50%) scale(1.08)}
+.arch-node.n3{bottom:20px;left:50%;transform:translateX(-50%)}
+.arch-node.n3:hover{transform:translateX(-50%) scale(1.08)}
+.arch-node.n4{top:50%;left:20px;transform:translateY(-50%)}
+.arch-node.n4:hover{transform:translateY(-50%) scale(1.08)}
+.node-icon{font-size:28px}
+.node-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:11px;font-weight:600;
+  color:var(--white);
+}
+.node-sub{
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px;color:var(--cyan);
+}
+/* SVG connecting lines */
+.arch-svg{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
+}
+.arch-line{stroke:rgba(0,217,255,0.2);stroke-width:1.5;fill:none;stroke-dasharray:6 6}
+.arch-line-anim{
+  stroke:var(--cyan);stroke-width:1.5;fill:none;
+  stroke-dasharray:8 100;
+  animation:lineMarch 4s linear infinite;
+}
+@keyframes lineMarch{
+  to{stroke-dashoffset:-108}
+}
+
+/* DEVICE CARDS */
+#devices{background:var(--bg-2)}
+.devices-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:2px;
+  background:var(--glass-border);
+  border-radius:16px;overflow:hidden;
+  border:1px solid var(--glass-border);
+}
+.device-card{
+  background:var(--bg-2);
+  padding:48px 40px;
+  transition:background 0.4s;
+  opacity:0;transform:translateY(16px);
+}
+.device-card.visible{opacity:1;transform:translateY(0)}
+.device-card:hover{background:rgba(0,217,255,0.03)}
+.device-card-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:28px;
+}
+.device-card-icon{
+  width:52px;height:52px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;
+  flex-shrink:0;
+}
+.device-card-icon.arduino{background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.2)}
+.device-card-icon.mobile{background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.2)}
+.device-card-icon.pc{background:rgba(0,102,255,0.1);border:1px solid rgba(0,102,255,0.2)}
+.device-card-icon.cloud{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.2)}
+.device-card-name{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:20px;font-weight:700;
+}
+.device-card-role{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--cyan);
+  letter-spacing:0.1em;margin-top:2px;
+}
+.feature-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.feature-list li{
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;color:var(--gray);
+}
+.feature-list li::before{
+  content:'';
+  width:16px;height:16px;
+  border-radius:4px;
+  background:rgba(0,217,255,0.1);
+  border:1px solid rgba(0,217,255,0.2);
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.feature-list li span.check{
+  color:var(--cyan);font-size:10px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* LIVE SIMULATION */
+#simulation{
+  background:var(--bg-0);
+  text-align:center;
+}
+.sim-container{
+  max-width:900px;margin:0 auto;
+}
+.sim-screen{
+  background:rgba(7,17,30,0.9);
+  border:1px solid var(--glass-border);
+  border-radius:20px;
+  padding:48px;
+  position:relative;overflow:hidden;
+  margin-bottom:32px;
+}
+.sim-screen::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  animation:scanLine 3s linear infinite;
+}
+@keyframes scanLine{
+  0%{opacity:0.3}50%{opacity:1}100%{opacity:0.3}
+}
+.sim-status-display{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(40px,6vw,80px);
+  font-weight:700;letter-spacing:0.1em;
+  margin-bottom:16px;
+  transition:all 0.6s;
+}
+.sim-safe{color:var(--green);text-shadow:0 0 40px rgba(46,204,113,0.5)}
+.sim-unsafe{color:var(--red);text-shadow:0 0 40px rgba(255,59,48,0.5)}
+.sim-alert{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--gray);
+  margin-bottom:32px;
+  min-height:20px;
+  transition:all 0.4s;
+}
+.sensors-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-bottom:32px;
+}
+.sensor-widget{
+  background:var(--bg-0);
+  border:1px solid var(--glass-border);
+  border-radius:12px;padding:20px 16px;
+  text-align:center;
+  transition:all 0.4s;
+}
+.sensor-widget.danger{
+  border-color:rgba(255,59,48,0.5);
+  background:rgba(255,59,48,0.05);
+}
+.sensor-name{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--gray);
+  letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:8px;display:block;
+}
+.sensor-value{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:26px;font-weight:700;
+  color:var(--white);transition:all 0.4s;
+}
+.sensor-unit{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--gray);
+}
+.sensor-bar{
+  height:3px;border-radius:2px;
+  background:rgba(255,255,255,0.1);
+  margin-top:10px;overflow:hidden;
+}
+.sensor-bar-fill{
+  height:100%;border-radius:2px;
+  background:var(--green);
+  transition:all 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.sensor-widget.danger .sensor-bar-fill{background:var(--red)}
+.sensor-widget.danger .sensor-value{color:var(--red)}
+.sim-btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.sim-btn{
+  padding:12px 28px;
+  border:none;border-radius:8px;
+  font-size:13px;font-weight:600;
+  font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all 0.3s;
+  letter-spacing:0.03em;
+}
+.sim-btn.inject{
+  background:linear-gradient(135deg,var(--red),#FF6B6B);
+  color:#fff;
+}
+.sim-btn.inject:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,59,48,0.4)}
+.sim-btn.reset{
+  background:var(--glass);
+  color:var(--gray);
+  border:1px solid var(--glass-border);
+}
+.sim-btn.reset:hover{color:var(--white);border-color:rgba(255,255,255,0.2)}
+
+/* COMPLIANCE */
+#compliance{background:var(--bg-1)}
+.compliance-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.compliance-card{
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:16px;padding:36px 28px;
+  transition:all 0.4s;
+  opacity:0;transform:translateY(16px);
+}
+.compliance-card.visible{opacity:1;transform:translateY(0)}
+.compliance-card:hover{
+  border-color:rgba(0,217,255,0.3);
+  transform:translateY(-4px);
+  box-shadow:var(--glow-cyan);
+}
+.comp-icon{font-size:32px;margin-bottom:16px;display:block}
+.comp-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:17px;font-weight:600;
+  margin-bottom:10px;
+}
+.comp-desc{font-size:13px;color:var(--gray);line-height:1.6}
+
+/* FOOTER */
+footer{
+  background:var(--bg-0);
+  padding:60px 48px 40px;
+  border-top:1px solid var(--glass-border);
+  position:relative;z-index:2;
+}
+.footer-inner{
+  max-width:1200px;margin:0 auto;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:40px;flex-wrap:wrap;
+}
+.footer-brand .nav-logo{font-size:20px}
+.footer-brand p{
+  font-size:13px;color:var(--gray);
+  max-width:280px;line-height:1.6;margin-top:10px;
+}
+.footer-links h5{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:12px;font-weight:600;
+  color:var(--white);letter-spacing:0.1em;
+  text-transform:uppercase;margin-bottom:16px;
+}
+.footer-links ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.footer-links a{font-size:13px;color:var(--gray);text-decoration:none;transition:color 0.3s}
+.footer-links a:hover{color:var(--cyan)}
+.footer-bottom{
+  text-align:center;margin-top:48px;
+  font-size:12px;color:rgba(122,139,170,0.5);
+  font-family:'JetBrains Mono',monospace;
+  letter-spacing:0.05em;
+}
+
+/* SCROLLED REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:all 0.6s cubic-bezier(0.16,1,0.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg-0)}
+::-webkit-scrollbar-thumb{background:rgba(0,217,255,0.3);border-radius:4px}
+
+/* EMERGENCY ALERT BANNER */
+.emergency-banner{
+  position:fixed;top:0;left:0;right:0;z-index:2000;
+  background:var(--red);
+  padding:12px 24px;
+  text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;font-weight:500;
+  letter-spacing:0.08em;
+  transform:translateY(-100%);
+  transition:transform 0.5s;
+  display:flex;align-items:center;justify-content:center;gap:16px;
+}
+.emergency-banner.active{transform:translateY(0)}
+.banner-close{
+  background:rgba(255,255,255,0.2);
+  border:none;color:#fff;
+  font-size:16px;cursor:pointer;
+  border-radius:4px;padding:2px 8px;
+  font-family:'JetBrains Mono',monospace;
+  transition:background 0.3s;
+}
+.banner-close:hover{background:rgba(255,255,255,0.3)}
+
+/* QUALCOMM BADGE */
+.qualcomm-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(0,102,255,0.08);
+  border:1px solid rgba(0,102,255,0.25);
+  border-radius:100px;
+  padding:8px 18px;
+  font-size:12px;color:var(--gray);
+  font-family:'JetBrains Mono',monospace;
+  margin-top:32px;
+}
+.qualcomm-badge strong{color:var(--blue)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:16px 24px}
+  .nav-links{display:none}
+  section{padding:72px 24px}
+  .divider{margin:0 24px}
+  #hero{padding:0 24px}
+  .hero-device{display:none}
+  .stats-row{grid-template-columns:1fr}
+  .devices-grid{grid-template-columns:1fr}
+  .compliance-grid{grid-template-columns:1fr}
+  .sensors-row{grid-template-columns:repeat(2,1fr)}
+  .arch-diagram{height:400px}
+  footer{padding:40px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- CANVAS BACKGROUND -->
+<canvas id="hero-canvas"></canvas>
+
+<!-- EMERGENCY BANNER -->
+<div class="emergency-banner" id="emergency-banner">
+  ⚠ EMERGENCY ALERT — H₂S CRITICAL — WORKER UNRESPONSIVE — SMS DISPATCHED
+  <button class="banner-close" onclick="closeBanner()">✕</button>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">KAVACH</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#devices">Devices</a></li>
+    <li><a href="#simulation">Simulation</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('simulation').scrollIntoView({behavior:'smooth'})">Try Live Demo</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      AI-Powered Confined Space Safety
+    </div>
+    <h1 class="hero-h1">
+      No Worker Enters<br>Until <span class="accent">AI Says</span><br>It's Safe.
+    </h1>
+    <p class="hero-sub">
+      KAVACH is an AI-powered confined-space safety and accountability platform that detects hazardous gases before entry, monitors workers in real time, and automates emergency escalation—powered by Qualcomm's distributed AI ecosystem.
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">Explore KAVACH</button>
+      <button class="btn-secondary" onclick="document.getElementById('simulation').scrollIntoView({behavior:'smooth'})">Watch Live Simulation</button>
+    </div>
+    <div class="qualcomm-badge">
+      Powered by <strong>Qualcomm Snapdragon</strong> · Edge AI · TinyML · BLE + Wi‑Fi
+    </div>
+  </div>
+
+  <!-- DEVICE ANIMATION -->
+  <div class="hero-device">
+    <div class="cable"></div>
+    <div class="data-packets">
+      <div class="packet"></div>
+      <div class="packet"></div>
+      <div class="packet"></div>
+    </div>
+    <div class="device-body">
+      <div class="device-screen">
+        <div class="device-status status-safe" id="hero-status">SAFE</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--gray)">AI SCAN ACTIVE</div>
+      </div>
+      <div class="device-led" id="hero-led"></div>
+    </div>
+    <div class="sensor-waves">
+      <div class="wave"></div>
+      <div class="wave"></div>
+      <div class="wave"></div>
+    </div>
+    <div class="manhole-ring"></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <span class="section-eyebrow reveal">The Crisis</span>
+  <h2 class="section-h2 reveal">Every Entry Shouldn't<br>Be a Gamble.</h2>
+  <p class="section-sub reveal">Confined space fatalities remain one of India's most preventable industrial tragedies. The data is sobering—and demands action.</p>
+
+  <div class="stats-row reveal">
+    <div class="stat-card">
+      <span class="stat-num" data-count="859">0</span>
+      <div class="stat-label">Lives lost in confined space accidents<br>between 2014 and 2025 in India</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" data-count="6">0</span>
+      <div class="stat-label">Days between each preventable death—<br>on average, across municipal operations</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-num" data-prefix=">" data-count="90">0</span>
+      <div class="stat-label">Percent of workers entering manholes<br>without any form of gas detection PPE</div>
+    </div>
+  </div>
+
+  <div style="max-width:760px;margin:0 auto">
+    <p class="section-eyebrow reveal" style="margin-bottom:32px">What Actually Happens</p>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Worker Descends Without Testing</h4>
+          <p>No sensor check. No atmospheric test. Entry is routine—based on habit, not data. H₂S and CH₄ accumulate invisibly.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal danger">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Toxic Gas Makes Contact</h4>
+          <p>H₂S above 50 ppm causes rapid incapacitation. The worker loses consciousness within seconds. There is no warning.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal danger">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Collapse — Undetected</h4>
+          <p>No check-in timer. No monitoring. Minutes pass before anyone on the surface realises something has gone wrong.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal danger">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>Untrained Rescue Attempts</h4>
+          <p>Co-workers descend without protection to help. They too are overcome. A single fatality becomes a multiple-casualty event.</p>
+        </div>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <h4>This Cycle Must Stop.</h4>
+          <p>KAVACH eliminates every failure point—before, during, and after confined space entry—with autonomous AI decision-making.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <span class="section-eyebrow reveal">Protocol</span>
+  <h2 class="section-h2 reveal">How KAVACH Works</h2>
+  <p class="section-sub reveal">A nine-step autonomous safety protocol from first deployment to final compliance record—requiring zero human judgment for the critical go/no-go decision.</p>
+
+  <div class="workflow">
+    <div class="workflow-step">
+      <span class="step-num">STEP 01</span>
+      <div class="step-icon cyan">⬇️</div>
+      <div class="step-title">Lower Device</div>
+      <div class="step-desc">KAVACH unit is lowered into the confined space on a rope before any human entry.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 02</span>
+      <div class="step-icon amber">🔬</div>
+      <div class="step-title">Gas Analysis</div>
+      <div class="step-desc">Reads H₂S, CH₄, O₂, and CO levels with industrial-grade multi-gas sensors in real time.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 03</span>
+      <div class="step-icon blue">🧠</div>
+      <div class="step-title">AI Risk Detection</div>
+      <div class="step-desc">TinyML model on-device runs deterministic safety logic and trend analysis on raw sensor data.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 04</span>
+      <div class="step-icon green">✅</div>
+      <div class="step-title">GO / NO-GO Decision</div>
+      <div class="step-desc">Immediate binary decision displayed on device screen and relayed via BLE to operator's phone.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 05</span>
+      <div class="step-icon cyan">👷</div>
+      <div class="step-title">Controlled Entry</div>
+      <div class="step-desc">Only on confirmed SAFE signal. Worker identity, timestamp, and clearance are logged automatically.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 06</span>
+      <div class="step-icon blue">📡</div>
+      <div class="step-title">Live Monitoring</div>
+      <div class="step-desc">Continuous atmospheric monitoring throughout the work period. Values stream to operator's phone.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 07</span>
+      <div class="step-icon amber">⏱️</div>
+      <div class="step-title">Check-In Timer</div>
+      <div class="step-desc">Worker must confirm presence every N minutes via phone. Silence triggers escalation automatically.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 08</span>
+      <div class="step-icon red">🚨</div>
+      <div class="step-title">Emergency Escalation</div>
+      <div class="step-desc">Auto-SMS to supervisor. GPS coordinates. Nearest emergency services notified. Full offline support.</div>
+    </div>
+    <div class="workflow-step">
+      <span class="step-num">STEP 09</span>
+      <div class="step-icon green">📋</div>
+      <div class="step-title">Compliance Record</div>
+      <div class="step-desc">Immutable digital entry log synced to municipal dashboard. Audit-ready. Timestamped. Signed.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <span class="section-eyebrow reveal">Platform</span>
+  <h2 class="section-h2 reveal">The Snapdragon Ecosystem</h2>
+  <p class="section-sub reveal">Four compute layers. One coherent safety mesh. Each node intelligent on its own; more powerful when connected.</p>
+
+  <div class="arch-diagram reveal">
+    <svg class="arch-svg" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet">
+      <!-- Lines from center to nodes -->
+      <line class="arch-line" x1="450" y1="300" x2="450" y2="155"/>
+      <line class="arch-line" x1="450" y1="300" x2="745" y2="300"/>
+      <line class="arch-line" x1="450" y1="300" x2="450" y2="445"/>
+      <line class="arch-line" x1="450" y1="300" x2="155" y2="300"/>
+      <!-- Animated packets -->
+      <line class="arch-line-anim" x1="450" y1="300" x2="450" y2="155"/>
+      <line class="arch-line-anim" x1="450" y1="300" x2="745" y2="300" style="animation-delay:1s"/>
+      <line class="arch-line-anim" x1="450" y1="300" x2="450" y2="445" style="animation-delay:2s"/>
+      <line class="arch-line-anim" x1="450" y1="300" x2="155" y2="300" style="animation-delay:3s"/>
+    </svg>
+
+    <!-- Center -->
+    <div class="arch-center">
+      <div style="font-size:28px">🛡️</div>
+      <div class="arch-center-label">KAVACH</div>
+      <div class="arch-center-sub">PLATFORM</div>
+    </div>
+
+    <!-- Node 1: Top — Arduino -->
+    <div class="arch-node n1">
+      <div class="node-icon">🔌</div>
+      <div class="node-label">Arduino UNO Q</div>
+      <div class="node-sub">EDGE DEVICE</div>
+    </div>
+    <!-- Node 2: Right — Mobile -->
+    <div class="arch-node n2">
+      <div class="node-icon">📱</div>
+      <div class="node-label">Mobile Device</div>
+      <div class="node-sub">WORKER LAYER</div>
+    </div>
+    <!-- Node 3: Bottom — PC -->
+    <div class="arch-node n3">
+      <div class="node-icon">🖥️</div>
+      <div class="node-label">Copilot+ PC</div>
+      <div class="node-sub">COMMAND CENTER</div>
+    </div>
+    <!-- Node 4: Left — Cloud -->
+    <div class="arch-node n4">
+      <div class="node-icon">☁️</div>
+      <div class="node-label">AI Cloud 100</div>
+      <div class="node-sub">FLEET INTEL</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DEVICES -->
+<section id="devices">
+  <span class="section-eyebrow reveal">Compute Layers</span>
+  <h2 class="section-h2 reveal">Device Responsibilities</h2>
+  <p class="section-sub reveal">Each device in the KAVACH mesh is purpose-built, capable of independent operation, and designed to be smarter when networked.</p>
+
+  <div class="devices-grid">
+    <!-- Arduino -->
+    <div class="device-card">
+      <div class="device-card-header">
+        <div class="device-card-icon arduino">🔌</div>
+        <div>
+          <div class="device-card-name">Arduino UNO Q</div>
+          <div class="device-card-role">PRE-ENTRY SAFETY DEVICE</div>
+        </div>
+      </div>
+      <ul class="feature-list">
+        <li><span class="check">→</span>H₂S, CH₄, O₂, CO multi-gas reading</li>
+        <li><span class="check">→</span>Deterministic safety loop — no cloud needed</li>
+        <li><span class="check">→</span>TinyML gas trend analysis on-device</li>
+        <li><span class="check">→</span>Instant local alarm and LED status display</li>
+        <li><span class="check">→</span>BLE + Wi-Fi data relay to mobile</li>
+        <li><span class="check">→</span>Real-time edge inference at &lt;200ms latency</li>
+      </ul>
+      <div style="margin-top:24px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray)">H₂S</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--green)" id="h2s-val">2 ppm</span>
+        </div>
+        <div class="sensor-bar"><div class="sensor-bar-fill" id="h2s-bar" style="width:4%;background:var(--green)"></div></div>
+      </div>
+    </div>
+
+    <!-- Mobile -->
+    <div class="device-card">
+      <div class="device-card-header">
+        <div class="device-card-icon mobile">📱</div>
+        <div>
+          <div class="device-card-name">Mobile Device</div>
+          <div class="device-card-role">WORKER SAFETY ASSISTANT</div>
+        </div>
+      </div>
+      <ul class="feature-list">
+        <li><span class="check">→</span>Large SAFE / UNSAFE status — visible in sunlight</li>
+        <li><span class="check">→</span>Offline voice alerts in local language</li>
+        <li><span class="check">→</span>Check-in countdown with auto-escalation</li>
+        <li><span class="check">→</span>GPS-tagged emergency SMS dispatch</li>
+        <li><span class="check">→</span>Bluetooth sync to KAVACH sensor unit</li>
+        <li><span class="check">→</span>Works fully offline — no data required</li>
+      </ul>
+      <div style="margin-top:24px;display:flex;gap:8px">
+        <div style="flex:1;background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gray);margin-bottom:4px">STATUS</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--green)" id="mobile-status">SAFE</div>
+        </div>
+        <div style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--gray);margin-bottom:4px">CHECK-IN</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--amber)" id="mobile-timer">08:23</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PC -->
+    <div class="device-card">
+      <div class="device-card-header">
+        <div class="device-card-icon pc">🖥️</div>
+        <div>
+          <div class="device-card-name">Snapdragon Copilot+ PC</div>
+          <div class="device-card-role">MUNICIPAL COMMAND CENTER</div>
+        </div>
+      </div>
+      <ul class="feature-list">
+        <li><span class="check">→</span>Live city map with all active operations</li>
+        <li><span class="check">→</span>Contractor and worker dashboard</li>
+        <li><span class="check">→</span>Automated compliance record generation</li>
+        <li><span class="check">→</span>Local LLM for safety report drafting</li>
+        <li><span class="check">→</span>Predictive maintenance scheduling</li>
+        <li><span class="check">→</span>Full operation without internet connection</li>
+      </ul>
+    </div>
+
+    <!-- Cloud -->
+    <div class="device-card">
+      <div class="device-card-header">
+        <div class="device-card-icon cloud">☁️</div>
+        <div>
+          <div class="device-card-name">Qualcomm AI Cloud 100</div>
+          <div class="device-card-role">FLEET INTELLIGENCE LAYER</div>
+        </div>
+      </div>
+      <ul class="feature-list">
+        <li><span class="check">→</span>Citywide learning from aggregated events</li>
+        <li><span class="check">→</span>Hazard prediction before workers deploy</li>
+        <li><span class="check">→</span>OTA model updates to all edge devices</li>
+        <li><span class="check">→</span>Risk heatmap by location and time</li>
+        <li><span class="check">→</span>Historical trend analysis and reporting</li>
+        <li><span class="check">→</span>Multi-city deployment management</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SIMULATION -->
+<section id="simulation">
+  <span class="section-eyebrow reveal">Interactive Demo</span>
+  <h2 class="section-h2 reveal">Live AI Simulation</h2>
+  <p class="section-sub reveal" style="margin:0 auto 48px;text-align:center">Simulate a hazardous gas injection and watch KAVACH's autonomous response in real time. No worker enters until AI clears it.</p>
+
+  <div class="sim-container">
+    <div class="sim-screen">
+      <div class="sim-status-display sim-safe" id="sim-status">SAFE TO ENTER</div>
+      <div class="sim-alert" id="sim-alert">All sensor values within safe thresholds · AI clearance active</div>
+
+      <div class="sensors-row">
+        <div class="sensor-widget" id="w-h2s">
+          <span class="sensor-name">H₂S</span>
+          <div class="sensor-value" id="v-h2s">2</div>
+          <div class="sensor-unit">ppm · Limit: 10</div>
+          <div class="sensor-bar"><div class="sensor-bar-fill" id="b-h2s" style="width:20%"></div></div>
+        </div>
+        <div class="sensor-widget" id="w-ch4">
+          <span class="sensor-name">CH₄</span>
+          <div class="sensor-value" id="v-ch4">0.8</div>
+          <div class="sensor-unit">% LEL · Limit: 20%</div>
+          <div class="sensor-bar"><div class="sensor-bar-fill" id="b-ch4" style="width:4%"></div></div>
+        </div>
+        <div class="sensor-widget" id="w-o2">
+          <span class="sensor-name">O₂</span>
+          <div class="sensor-value" id="v-o2">20.9</div>
+          <div class="sensor-unit">% · Safe: 19.5–23.5</div>
+          <div class="sensor-bar"><div class="sensor-bar-fill" id="b-o2" style="width:82%;background:var(--green)"></div></div>
+        </div>
+        <div class="sensor-widget" id="w-co">
+          <span class="sensor-name">CO</span>
+          <div class="sensor-value" id="v-co">5</div>
+          <div class="sensor-unit">ppm · Limit: 35</div>
+          <div class="sensor-bar"><div class="sensor-bar-fill" id="b-co" style="width:14%"></div></div>
+        </div>
+      </div>
+
+      <div class="sim-btn-row">
+        <button class="sim-btn inject" onclick="injectGas()">⚠ Inject Hazardous Gas</button>
+        <button class="sim-btn reset" onclick="resetSim()">↺ Reset to Safe</button>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:0">
+      <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:6px">AI RESPONSE TIME</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--cyan)">&lt;180ms</div>
+      </div>
+      <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:6px">OFFLINE CAPABLE</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--green)">100%</div>
+      </div>
+      <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:20px;text-align:center">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:6px">GASES MONITORED</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--amber)">4+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- COMPLIANCE -->
+<section id="compliance">
+  <span class="section-eyebrow reveal">Digital Infrastructure</span>
+  <h2 class="section-h2 reveal">Built-In Compliance</h2>
+  <p class="section-sub reveal">KAVACH doesn't just protect workers—it creates an unbroken digital chain of accountability from first entry to final audit.</p>
+
+  <div class="compliance-grid">
+    <div class="compliance-card reveal">
+      <span class="comp-icon">📝</span>
+      <div class="comp-title">Automated Entry Logs</div>
+      <div class="comp-desc">Every entry is timestamped, worker-identified, and atmospheric-data-stamped automatically. No manual paperwork.</div>
+    </div>
+    <div class="compliance-card reveal" style="transition-delay:0.1s">
+      <span class="comp-icon">🗂️</span>
+      <div class="comp-title">Immutable Audit Trail</div>
+      <div class="comp-desc">Records are cryptographically sealed on the Snapdragon PC and synced to the cloud. Tamper-evident by design.</div>
+    </div>
+    <div class="compliance-card reveal" style="transition-delay:0.2s">
+      <span class="comp-icon">📊</span>
+      <div class="comp-title">AI Safety Reports</div>
+      <div class="comp-desc">Local LLM on the Copilot+ PC drafts narrative safety reports from raw event data—ready for municipal submission.</div>
+    </div>
+    <div class="compliance-card reveal" style="transition-delay:0.3s">
+      <span class="comp-icon">🗺️</span>
+      <div class="comp-title">Risk Heatmaps</div>
+      <div class="comp-desc">Historical hazard data visualised geographically. Identify high-risk locations before scheduling future operations.</div>
+    </div>
+    <div class="compliance-card reveal" style="transition-delay:0.4s">
+      <span class="comp-icon">🔔</span>
+      <div class="comp-title">Automatic Escalation</div>
+      <div class="comp-desc">Zero human decision required. AI detects anomaly, triggers SMS, logs escalation, and awaits confirmation—all offline.</div>
+    </div>
+    <div class="compliance-card reveal" style="transition-delay:0.5s">
+      <span class="comp-icon">🌐</span>
+      <div class="comp-title">Multi-City Deployment</div>
+      <div class="comp-desc">Qualcomm AI Cloud 100 aggregates safety learnings across cities. Every deployment makes the whole network smarter.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-logo">KAVACH</div>
+      <p>AI-powered confined space safety for India's municipal workers. No worker enters until AI says it's safe.</p>
+    </div>
+    <div class="footer-links">
+      <h5>Platform</h5>
+      <ul>
+        <li><a href="#problem">The Problem</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#simulation">Live Demo</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h5>Technology</h5>
+      <ul>
+        <li><a href="#">Qualcomm Snapdragon</a></li>
+        <li><a href="#">TinyML Edge AI</a></li>
+        <li><a href="#">Arduino UNO Q</a></li>
+        <li><a href="#">AI Cloud 100</a></li>
+      </ul>
+    </div>
+    <div class="footer-links">
+      <h5>Contact</h5>
+      <ul>
+        <li><a href="#">Request Demo</a></li>
+        <li><a href="#">Municipal Partners</a></li>
+        <li><a href="#">Press Kit</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    KAVACH · Built on Qualcomm's AI Ecosystem · Protecting Lives with Edge Intelligence
+  </div>
+</footer>
+
+<script>
+// ============================
+// CANVAS PARTICLE BACKGROUND
+// ============================
+const canvas = document.getElementById('hero-canvas');
+const ctx = canvas.getContext('2d');
+
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resize();
+window.addEventListener('resize',resize);
+
+const particles=[];
+const NUM=120;
+
+for(let i=0;i<NUM;i++){
+  particles.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*1.5+0.2,
+    vx:(Math.random()-0.5)*0.3,
+    vy:(Math.random()-0.5)*0.3,
+    alpha:Math.random()*0.5+0.1,
+    type:Math.random()<0.2?'gas':'dot'
+  });
+}
+
+// Gas blobs
+const blobs=[];
+for(let i=0;i<8;i++){
+  blobs.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*60+30,
+    vx:(Math.random()-0.5)*0.15,
+    vy:(Math.random()-0.5)*0.1,
+    alpha:Math.random()*0.06+0.02,
+    hue:Math.random()<0.5?120:200
+  });
+}
+
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Draw blobs
+  for(const b of blobs){
+    const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+    g.addColorStop(0,`hsla(${b.hue},100%,60%,${b.alpha})`);
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fillStyle=g;
+    ctx.fill();
+    b.x+=b.vx;b.y+=b.vy;
+    if(b.x<-b.r)b.x=canvas.width+b.r;
+    if(b.x>canvas.width+b.r)b.x=-b.r;
+    if(b.y<-b.r)b.y=canvas.height+b.r;
+    if(b.y>canvas.height+b.r)b.y=-b.r;
+  }
+
+  // Draw connections
+  for(let i=0;i<particles.length;i++){
+    for(let j=i+1;j<particles.length;j++){
+      const dx=particles[i].x-particles[j].x;
+      const dy=particles[i].y-particles[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<100){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(0,217,255,${0.06*(1-dist/100)})`;
+        ctx.lineWidth=0.5;
+        ctx.moveTo(particles[i].x,particles[i].y);
+        ctx.lineTo(particles[j].x,particles[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Draw dots
+  for(const p of particles){
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(0,217,255,${p.alpha})`;
+    ctx.fill();
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=canvas.width;
+    if(p.x>canvas.width)p.x=0;
+    if(p.y<0)p.y=canvas.height;
+    if(p.y>canvas.height)p.y=0;
+  }
+
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ============================
+// HERO STATUS CYCLING
+// ============================
+const heroStatus=document.getElementById('hero-status');
+const heroLed=document.getElementById('hero-led');
+const mobileStatus=document.getElementById('mobile-status');
+let heroState=0;
+const states=['SAFE','SCANNING','UNSAFE','ALERT','SAFE'];
+const stateColors=['status-safe','status-safe','status-unsafe','status-unsafe','status-safe'];
+setInterval(()=>{
+  heroState=(heroState+1)%states.length;
+  heroStatus.className='device-status '+stateColors[heroState];
+  heroStatus.textContent=states[heroState];
+  if(states[heroState]==='UNSAFE'||states[heroState]==='ALERT'){
+    heroLed.style.background='var(--red)';
+    heroLed.style.boxShadow='0 0 8px var(--red)';
+  } else {
+    heroLed.style.background='var(--green)';
+    heroLed.style.boxShadow='0 0 8px var(--green)';
+  }
+},3000);
+
+// ============================
+// SCROLL REVEAL
+// ============================
+const revealEls=document.querySelectorAll('.reveal,.timeline-item,.workflow-step,.device-card,.compliance-card');
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting)e.target.classList.add('visible');
+  });
+},{threshold:0.1});
+revealEls.forEach(el=>io.observe(el));
+
+// Stagger workflow steps
+document.querySelectorAll('.workflow-step').forEach((el,i)=>{
+  el.style.transitionDelay=`${i*0.05}s`;
+});
+document.querySelectorAll('.device-card').forEach((el,i)=>{
+  el.style.transitionDelay=`${i*0.08}s`;
+});
+
+// ============================
+// ANIMATED COUNTERS
+// ============================
+const counters=document.querySelectorAll('[data-count]');
+const cio=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      animateCount(e.target);
+      cio.unobserve(e.target);
+    }
+  });
+},{threshold:0.5});
+counters.forEach(c=>cio.observe(c));
+
+function animateCount(el){
+  const target=parseInt(el.dataset.count);
+  const prefix=el.dataset.prefix||'';
+  const suffix=el.dataset.suffix||'';
+  let start=0;
+  const duration=1800;
+  const step=timestamp=>{
+    if(!start)start=timestamp;
+    const progress=Math.min((timestamp-start)/duration,1);
+    const ease=1-Math.pow(1-progress,4);
+    const current=Math.round(ease*target);
+    el.textContent=prefix+current+suffix;
+    if(progress<1)requestAnimationFrame(step);
+    else el.textContent=prefix+target+suffix;
+  };
+  requestAnimationFrame(step);
+}
+// Fix suffix for 90%
+document.querySelectorAll('[data-count]').forEach(el=>{
+  if(el.dataset.count==='90')el.dataset.suffix='%';
+});
+
+// ============================
+// MOBILE TIMER COUNTDOWN
+// ============================
+let timerSecs=503;
+setInterval(()=>{
+  timerSecs--;
+  if(timerSecs<0)timerSecs=600;
+  const m=Math.floor(timerSecs/60);
+  const s=timerSecs%60;
+  const el=document.getElementById('mobile-timer');
+  if(el)el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+},1000);
+
+// ============================
+// LIVE H2S SENSOR ON DEVICE CARD
+// ============================
+function liveH2s(){
+  const val=(Math.random()*6+1).toFixed(1);
+  const pct=Math.min((val/10)*100,100);
+  const el=document.getElementById('h2s-val');
+  const bar=document.getElementById('h2s-bar');
+  if(el)el.textContent=val+' ppm';
+  if(bar)bar.style.width=pct+'%';
+}
+setInterval(liveH2s,2000);
+
+// ============================
+// SIMULATION
+// ============================
+let simState='safe';
+let simInterval=null;
+
+function injectGas(){
+  if(simState==='danger')return;
+  simState='danger';
+
+  // Animate values
+  let t=0;
+  simInterval=setInterval(()=>{
+    t+=1;
+    const h2s=Math.min(2+t*4,78);
+    const ch4=Math.min(0.8+t*1.5,35);
+    const o2=Math.max(20.9-t*0.4,14.2);
+    const co=Math.min(5+t*8,165);
+
+    document.getElementById('v-h2s').textContent=h2s.toFixed(0);
+    document.getElementById('b-h2s').style.width=Math.min((h2s/10)*100,100)+'%';
+
+    document.getElementById('v-ch4').textContent=ch4.toFixed(1);
+    document.getElementById('b-ch4').style.width=Math.min((ch4/20)*100,100)+'%';
+
+    document.getElementById('v-o2').textContent=o2.toFixed(1);
+    document.getElementById('b-o2').style.width=Math.max((o2/23.5)*100,0)+'%';
+
+    document.getElementById('v-co').textContent=co.toFixed(0);
+    document.getElementById('b-co').style.width=Math.min((co/35)*100,100)+'%';
+
+    // Mark danger
+    if(h2s>10){
+      document.getElementById('w-h2s').classList.add('danger');
+      document.getElementById('b-h2s').style.background='var(--red)';
+    }
+    if(ch4>20){
+      document.getElementById('w-ch4').classList.add('danger');
+      document.getElementById('b-ch4').style.background='var(--red)';
+    }
+    if(o2<19.5){
+      document.getElementById('w-o2').classList.add('danger');
+      document.getElementById('b-o2').style.background='var(--red)';
+    }
+    if(co>35){
+      document.getElementById('w-co').classList.add('danger');
+      document.getElementById('b-co').style.background='var(--red)';
+    }
+
+    if(h2s>10){
+      document.getElementById('sim-status').className='sim-status-display sim-unsafe';
+      document.getElementById('sim-status').textContent='HAZARD DETECTED';
+      document.getElementById('sim-alert').textContent='H₂S CRITICAL · Entry blocked · Emergency escalation active';
+      mobileStatus.textContent='UNSAFE';
+      mobileStatus.style.color='var(--red)';
+      showBanner();
+    }
+
+    if(t>14)clearInterval(simInterval);
+  },400);
+}
+
+function resetSim(){
+  simState='safe';
+  clearInterval(simInterval);
+
+  document.getElementById('v-h2s').textContent='2';
+  document.getElementById('b-h2s').style.width='20%';
+  document.getElementById('b-h2s').style.background='var(--green)';
+  document.getElementById('w-h2s').classList.remove('danger');
+
+  document.getElementById('v-ch4').textContent='0.8';
+  document.getElementById('b-ch4').style.width='4%';
+  document.getElementById('b-ch4').style.background='var(--green)';
+  document.getElementById('w-ch4').classList.remove('danger');
+
+  document.getElementById('v-o2').textContent='20.9';
+  document.getElementById('b-o2').style.width='82%';
+  document.getElementById('b-o2').style.background='var(--green)';
+  document.getElementById('w-o2').classList.remove('danger');
+
+  document.getElementById('v-co').textContent='5';
+  document.getElementById('b-co').style.width='14%';
+  document.getElementById('b-co').style.background='var(--green)';
+  document.getElementById('w-co').classList.remove('danger');
+
+  document.getElementById('sim-status').className='sim-status-display sim-safe';
+  document.getElementById('sim-status').textContent='SAFE TO ENTER';
+  document.getElementById('sim-alert').textContent='All sensor values within safe thresholds · AI clearance active';
+
+  mobileStatus.textContent='SAFE';
+  mobileStatus.style.color='var(--green)';
+  closeBanner();
+}
+
+function showBanner(){
+  document.getElementById('emergency-banner').classList.add('active');
+}
+function closeBanner(){
+  document.getElementById('emergency-banner').classList.remove('active');
+}
+</script>
+</body>
+</html>
